@@ -17,6 +17,7 @@ file(GLOB_RECURSE HEADER_FILES
 # Configure assets header file
 
 include_directories(${CMAKE_BINARY_DIR}/src)
+include_directories(${CMAKE_BINARY_DIR}/resources)
 	
 # Define the executable
 add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES})
@@ -40,14 +41,17 @@ find_package(GLFW3 REQUIRED)
 message(STATUS "Found GLFW3 in ${GLFW3_INCLUDE_DIR}")
 
 
-# GLAD
-add_library(GLAD "thirdparty/glad.c")
+# GLEW
+#find_package(GLEW REQUIRED)
+#include_directories(${GLEW_INCLUDE_DIRS})
+#link_libraries(${GLEW_LIBRARIES})
+target_include_directories(OpenGLProject PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # Put all libraries into a variable
 if(WIN32)
-	set(LIBS glfw3 opengl32 GLAD)
+	set(LIBS glfw3 opengl32 glew32)
 else()
-	set(LIBS glfw GL GLAD)
+	set(LIBS glfw GL glew32)
 endif()
 # Define the include DIRs
 include_directories(
@@ -69,7 +73,7 @@ if(MSVC_IDE)
 				GroupSources(${curdir}/${child})
 			else()
 				string(REPLACE "/" "\\" groupname ${curdir})
-				string(REPLACE "src" "Sources" groupname ${groupname})
+				string(REPLACE "src" "sources" groupname ${groupname})
 				source_group(${groupname} FILES ${PROJECT_SOURCE_DIR}/${curdir}/${child})
 			endif()
 		endforeach()

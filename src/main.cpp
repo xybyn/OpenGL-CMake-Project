@@ -1,58 +1,90 @@
 #include <iostream>
-#include <glad/glad.h>
+#include <gl/glew.h>
 #include <GLFW/glfw3.h>
-GLFWwindow* window;
-const int WINDOW_WIDTH  = 1024;
-const int WINDOW_HEIGHT = 768;
-int init()
+#include "shader/Shader.h"
+#include <vector>
+
+using namespace std;
+int main()
 {
-    if (!glfwInit())
-        return -1;
+	constexpr int screen_width = 1200;
+	constexpr int screen_height = 1200;
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "OpenGL Window", nullptr, nullptr);
+	glfwInit();
 
-    if (!window)
-    {
-        glfwTerminate();
-        return -1;
-    }
+	glfwWindowHint(GLFW_SAMPLES, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
-    glfwMakeContextCurrent(window);
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
-        std::cout << "Failed to initialize GLAD" << std::endl;
-        return -1;
-    }
+	GLFWwindow *window = glfwCreateWindow(screen_width, screen_height, "Raymraching Sample", nullptr, nullptr);
 
-    glClearColor(1, 0.8f, 1.0f, 1.0f);
-    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+	glfwMakeContextCurrent(window);
+	glfwSwapInterval(0);
 
-    glEnable(GL_DEPTH_TEST);
+	glViewport(0, 0, screen_width, screen_height);
+	glPointSize(1);
+	glewInit();
 
-    return true;
+	Shader point_shader = Shader("../resources/test.vert", "../resources/test.frag");
+
+
+	vector<float> vertices;
+	vertices.reserve(2 * 4);
+
+	vertices.push_back(-1);
+	vertices.push_back(1);
+
+	vertices.push_back(-1);
+	vertices.push_back(-1);
+
+	vertices.push_back(1);
+	vertices.push_back(-1);
+
+	vertices.push_back(1);
+	vertices.push_back(1);
+
+	GLuint VAO, VBO;
+	glGenBuffers(1, &VAO);
+	glGenBuffers(1, &VBO);
+
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (GLvoid *) 0);
+	glEnableVertexAttribArray(0);
+	glBindVertexArray(0);
+
+
+	glBindVertexArray(VAO);
+	while (!glfwWindowShouldClose(window))
+	{
+		glfwPollEvents();
+		glClear(GL_COLOR_BUFFER_BIT);
+
+
+		float time = glfwGetTime();
+
+
+		point_shader.use();
+		point_shader.setFloat("time", time);
+		int h;
+		int w;
+		glfwGetWindowSize(window, &w, &h);
+		glViewport(0, 0, w, h);
+		point_shader.setVec2("resolution", glm::vec2(w, h));
+
+
+
+		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+		glfwSwapBuffers(window);
+	}
+
+	glfwDestroyWindow(window);
+	glfwTerminate();
 }
 
-int main(void)
-{
-    if (!init())
-        return -1;
-
-    float startTime = static_cast<float>(glfwGetTime());
-    float newTime  = 0.0f;
-    float gameTime = 0.0f;
-
-    while (!glfwWindowShouldClose(window))
-    {
-        newTime  = static_cast<float>(glfwGetTime());
-        gameTime = newTime - startTime;
-        glfwSwapBuffers(window);
-        glfwPollEvents();
-    }
-    glfwTerminate();
-    return 0;
-}
