@@ -6,8 +6,7 @@ link_directories(${CMAKE_SOURCE_DIR}/lib)
 
 # Add source files
 file(GLOB_RECURSE SOURCE_FILES 
-	${CMAKE_SOURCE_DIR}/src/*.c
-	${CMAKE_SOURCE_DIR}/src/*.cpp)
+	${CMAKE_SOURCE_DIR}/src/*)
 	
 # Add header files
 file(GLOB_RECURSE HEADER_FILES 
@@ -17,7 +16,6 @@ file(GLOB_RECURSE HEADER_FILES
 # Configure assets header file
 
 include_directories(${CMAKE_BINARY_DIR}/src)
-include_directories(${CMAKE_BINARY_DIR}/resources)
 	
 # Define the executable
 add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES})
@@ -51,7 +49,7 @@ target_include_directories(OpenGLProject PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/incl
 if(WIN32)
 	set(LIBS glfw3 opengl32 glew32)
 else()
-	set(LIBS glfw GL glew32)
+	set(LIBS glfw GL GLEW)
 endif()
 # Define the include DIRs
 include_directories(
@@ -73,7 +71,6 @@ if(MSVC_IDE)
 				GroupSources(${curdir}/${child})
 			else()
 				string(REPLACE "/" "\\" groupname ${curdir})
-				string(REPLACE "src" "sources" groupname ${groupname})
 				source_group(${groupname} FILES ${PROJECT_SOURCE_DIR}/${curdir}/${child})
 			endif()
 		endforeach()
@@ -81,12 +78,4 @@ if(MSVC_IDE)
 
 	# Run macro
 	GroupSources(src)
-endif()
-
-# Copy dlls
-if(WIN32)
-	add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_directory
-		"${PROJECT_SOURCE_DIR}/dlls"
-		$<TARGET_FILE_DIR:${PROJECT_NAME}>)
 endif()
