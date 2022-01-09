@@ -17,7 +17,7 @@ void runCapsuleExample()
 
 	glfwInit();
 
-	glfwWindowHint(GLFW_SAMPLES, 4);
+	glfwWindowHint(GLFW_SAMPLES, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 	GLFWwindow *window = glfwCreateWindow(screen_width, screen_height, "Raymraching Sphere", nullptr, nullptr);

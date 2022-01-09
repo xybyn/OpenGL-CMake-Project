@@ -1,4 +1,4 @@
-#version 410 core
+#version 330 core
 layout (location = 0) in vec2 position;
 uniform vec2 resolution;
 void main()
